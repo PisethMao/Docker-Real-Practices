@@ -1,0 +1,10 @@
+name: docker-volume-practice
+
+services:
+  visitor-counter:
+    build: .
+    volumes:
+      - visitor_data:/data
+
+volumes:
+  visitor_data:
