@@ -1,0 +1,13 @@
+name: piseth-todos-lab
+
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: piseth-todos:lab
+    ports:
+      - "127.0.0.1:3080:3000"
+    env_file:
+      - .env.docker
+    restart: unless-stopped
