@@ -1,0 +1,65 @@
+services:
+  frontend:
+    build:
+      context: ./sample-product-reactapp
+    pull_policy: build
+    image: lyvann544/frontend-image:latest
+    container_name: frontend-cont
+    ports:
+      - "3000:80"
+    depends_on:
+      backend:
+        condition: service_healthy
+    networks:
+      - fullstack-net
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O /dev/null http://localhost:80/ || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+  backend:
+    build:
+      context: ./spring-sample-product-jpa
+      dockerfile: dev.Dockerfile
+    pull_policy: build
+    container_name: backend-cont
+    image: lyvanna544/backend-image
+    depends_on:
+      database:
+        condition: service_healthy
+    networks:
+      - fullstack-net
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://localhost:8080/api/v1/products > /dev/null || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  database:
+    image: postgres
+    container_name: postgres-cont
+    environment:
+      # POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      # POSTGRES_DB: postgres
+    volumes:
+      - database-vol:/var/lib/postgresql
+    networks:
+      - fullstack-net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+volumes:
+  database-vol:
+
+networks:
+  fullstack-net:
+    # name: fullstack-net
+    driver: bridge
